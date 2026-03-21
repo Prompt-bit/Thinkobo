@@ -80,6 +80,10 @@ def not_found(_e):
 def home():
     return render_template("index.html")
 
+@app.route("/home")
+def real():
+    return render_template("home.html")
+
 @app.route("/auth")
 def auth():
     return render_template("auth.html")
