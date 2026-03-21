@@ -1,4 +1,3 @@
 flask
 werkzeug
-htmlmin
 gunicorn
