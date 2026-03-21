@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>Thinkobo - {{ course.title }}</title>
+  </head>
+
+  <body class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"></div>
+      <div class="absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+    </div>
+
+    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/75 backdrop-blur">
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <a href="/dashboard" class="flex items-center gap-2">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-8 w-8"
+          />
+          <span class="text-base font-semibold tracking-tight">Thinkobo</span>
+        </a>
+
+        <div class="flex items-center gap-3">
+          <a
+            href="/dashboard"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Dashboard
+          </a>
+
+          <button
+            id="logoutBtn"
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Log out
+          </button>
+
+          <div class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
+            <div class="grid h-7 w-7 place-items-center rounded-full bg-indigo-600 text-xs font-semibold text-white" aria-hidden="true">
+              {{ (user.name[:1] if user and user.name else "U") | upper }}
+            </div>
+            <div class="leading-tight">
+              <div class="text-sm font-semibold">{{ user.name }}</div>
+              <div class="text-xs text-slate-500">{{ user.email }}</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-10">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">{{ course.title }}</h1>
+          <p class="mt-1 text-sm text-slate-600">{{ course.description }}</p>
+        </div>
+
+        {% if enrolled %}
+        <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+          Enrolled
+        </span>
+        {% else %}
+        <button
+          id="enrollBtn"
+          type="button"
+          class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+        >
+          Enroll to view content
+        </button>
+        {% endif %}
+      </div>
+
+      <section class="mt-8 grid gap-6 lg:grid-cols-12">
+        <aside class="lg:col-span-4">
+          <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 class="text-sm font-semibold text-slate-800">Lessons</h2>
+            <p class="mt-1 text-xs text-slate-600">All course content is here.</p>
+
+            <div id="lessonList" class="mt-4 space-y-2">
+              {% for l in lessons %}
+              <button
+                type="button"
+                class="lesson-btn w-full rounded-2xl border border-slate-200 bg-white p-3 text-left hover:bg-slate-50 {% if not enrolled %}opacity-60 cursor-not-allowed{% endif %}"
+                data-lesson="{{ l.id }}"
+                {% if not enrolled %}disabled{% endif %}
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="text-sm font-semibold">
+                    Lesson {{ loop.index }}: {{ l.title }}
+                  </div>
+                  {% if not enrolled %}
+                  <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">
+                    Locked
+                  </span>
+                  {% endif %}
+                </div>
+              </button>
+              {% endfor %}
+            </div>
+          </div>
+        </aside>
+
+        <section class="lg:col-span-8">
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            {% if not enrolled %}
+            <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+              <div class="text-sm font-semibold text-indigo-900">Enroll to unlock lessons</div>
+              <p class="mt-1 text-sm text-indigo-900/80">
+                Once enrolled, you'll be able to read all lessons and track progress.
+              </p>
+            </div>
+            {% endif %}
+
+            <div id="lessonView">
+              {% if lessons|length == 0 %}
+              <p class="text-sm text-slate-600">No lessons yet.</p>
+              {% else %}
+                {% if not enrolled %}
+                <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div class="text-sm font-semibold text-slate-800">Content locked</div>
+                  <p class="mt-1 text-sm text-slate-600">
+                    Enroll to view lessons.
+                  </p>
+                </div>
+                {% else %}
+                  {% for l in lessons %}
+                  <article
+                    class="lesson-article {% if not loop.first %}hidden{% endif %}"
+                    data-lesson-article="{{ l.id }}"
+                  >
+                    <div class="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                      Lesson {{ loop.index }}
+                    </div>
+                    <h2 class="mt-1 text-xl font-semibold tracking-tight">{{ l.title }}</h2>
+                    <div class="prose prose-slate mt-4 max-w-none">
+                      <p class="text-sm leading-relaxed text-slate-700">
+                        {{ l.body }}
+                      </p>
+                    </div>
+                  </article>
+                  {% endfor %}
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <p id="msg" class="mt-6 text-sm"></p>
+    </main>
+
+    <script>
+      const enrolled = {{ "true" if enrolled else "false" }};
+
+      async function postJSON(url, payload) {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      function setMessage(text, kind) {
+        const el = document.getElementById("msg");
+        el.textContent = text || "";
+        el.className =
+          "mt-6 text-sm " +
+          (kind === "ok"
+            ? "text-emerald-700"
+            : kind === "err"
+              ? "text-rose-700"
+              : "text-slate-600");
+      }
+
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        await postJSON("/api/logout", {});
+        window.location.href = "/home";
+      });
+
+      const enrollBtn = document.getElementById("enrollBtn");
+      if (enrollBtn) {
+        enrollBtn.addEventListener("click", async () => {
+          enrollBtn.disabled = true;
+          const { ok, data } = await postJSON("/api/enroll", { course_id: {{ course.id }} });
+          if (!ok || !data?.ok) {
+            setMessage(data?.message || "Enroll failed.", "err");
+            enrollBtn.disabled = false;
+            return;
+          }
+          window.location.reload();
+        });
+      }
+
+      function showLesson(id) {
+        document.querySelectorAll("[data-lesson-article]").forEach((el) => {
+          el.classList.toggle("hidden", el.getAttribute("data-lesson-article") !== String(id));
+        });
+        document.querySelectorAll(".lesson-btn").forEach((btn) => {
+          const active = btn.getAttribute("data-lesson") === String(id);
+          btn.classList.toggle("border-indigo-200", active);
+          btn.classList.toggle("bg-indigo-50", active);
+        });
+      }
+
+      document.querySelectorAll(".lesson-btn").forEach((btn) => {
+        btn.addEventListener("click", () => showLesson(btn.getAttribute("data-lesson")));
+      });
+    </script>
+  </body>
+</html>

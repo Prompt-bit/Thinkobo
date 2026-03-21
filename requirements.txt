@@ -1,0 +1,4 @@
+Flask==3.1.2
+Werkzeug==3.1.5
+htmlmin==0.1.12
+gunicorn

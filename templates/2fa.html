@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>2FA - Thinkobo</title>
+  </head>
+
+  <body class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"></div>
+      <div class="absolute -bottom-24 right-12 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+    </div>
+    {% from "components/autobot.html" import autobot_banner %} {{ autobot_banner(autobot) }}
+
+    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/75 backdrop-blur">
+      <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <a href="/home" class="flex items-center gap-2">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-8 w-8"
+          />
+          <span class="text-base font-semibold tracking-tight">2FA</span>
+        </a>
+        <div class="flex items-center gap-3">
+          <button
+            id="logoutBtn"
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Log out
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-4 py-10">
+      <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-semibold tracking-tight">
+              {% if mode == "setup" %}Set up 2FA{% else %}Enter 2FA code{% endif %}
+            </h1>
+            <p class="mt-1 text-sm text-slate-600">
+              Account: <span class="font-semibold">{{ user.email }}</span>
+            </p>
+            {% if pending %}
+            <p class="mt-1 text-xs text-slate-500">
+              You must complete 2FA before accessing the dashboard.
+            </p>
+            {% endif %}
+          </div>
+          <a
+            href="{{ next_path }}"
+            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Back
+          </a>
+        </div>
+
+        {% if mode == "setup" %}
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <h2 class="text-sm font-semibold">Step 1: Add to authenticator</h2>
+            <p class="mt-1 text-sm text-slate-600">
+              Click “Generate secret”, then add it to Google Authenticator, Microsoft Authenticator, Authy, etc.
+            </p>
+            <button
+              id="generateBtn"
+              type="button"
+              class="mt-4 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+            >
+              Generate secret
+            </button>
+
+            <div id="secretWrap" class="mt-4 hidden">
+              <div class="text-xs font-semibold text-slate-600">Secret</div>
+              <div class="mt-1 rounded-xl border border-slate-200 bg-white p-3 font-mono text-sm break-all" id="secretText"></div>
+              <div class="mt-3 text-xs font-semibold text-slate-600">OTPAuth URI</div>
+              <div class="mt-1 rounded-xl border border-slate-200 bg-white p-3 font-mono text-xs break-all" id="uriText"></div>
+              <div id="qrWrap" class="mt-4 hidden">
+                <div class="text-xs font-semibold text-slate-600">Scan QR</div>
+                <div class="mt-2 inline-flex rounded-2xl border border-slate-200 bg-white p-3">
+                  <canvas id="qrCanvas" width="220" height="220" class="block"></canvas>
+                </div>
+                <p class="mt-2 text-xs text-slate-500">Scan with your authenticator app to add Thinkobo instantly.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <h2 class="text-sm font-semibold">Step 2: Confirm code</h2>
+            <p class="mt-1 text-sm text-slate-600">
+              Enter the 6-digit code from your authenticator app to enable 2FA.
+            </p>
+
+            <form id="enableForm" class="mt-4 space-y-3">
+              <div>
+                <label for="enableCode" class="text-sm font-medium text-slate-700">Code</label>
+                <input
+                  id="enableCode"
+                  name="code"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  placeholder="123456"
+                  maxlength="6"
+                  required
+                  class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+                />
+              </div>
+              <button
+                id="enableBtn"
+                type="submit"
+                class="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                Enable 2FA
+              </button>
+              <p id="msg" class="text-sm"></p>
+            </form>
+          </div>
+        </div>
+        {% else %}
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <p class="text-sm text-slate-600">Enter the 6-digit code from your authenticator app.</p>
+          <form id="verifyForm" class="mt-4 flex flex-wrap items-end gap-3">
+            <div class="min-w-[220px] flex-1">
+              <label for="verifyCode" class="text-sm font-medium text-slate-700">Code</label>
+              <input
+                id="verifyCode"
+                name="code"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder="123456"
+                maxlength="6"
+                required
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+              />
+            </div>
+            <button
+              id="verifyBtn"
+              type="submit"
+              class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            >
+              Verify
+            </button>
+            <p id="msg" class="w-full text-sm"></p>
+          </form>
+        </div>
+        {% endif %}
+      </section>
+    </main>
+
+    <script>
+      const NEXT_PATH = "{{ next_path }}";
+
+      async function postJSON(url, payload) {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload || {}),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      function setMsg(text, ok) {
+        const el = document.getElementById("msg");
+        if (!el) return;
+        el.textContent = text || "";
+        el.className = "text-sm " + (ok ? "text-emerald-700" : "text-rose-700");
+      }
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+          await postJSON("/api/logout", {});
+          window.location.href = "/auth";
+        });
+      }
+
+      const generateBtn = document.getElementById("generateBtn");
+      const secretWrap = document.getElementById("secretWrap");
+      const secretText = document.getElementById("secretText");
+      const uriText = document.getElementById("uriText");
+      const qrWrap = document.getElementById("qrWrap");
+      const qrCanvas = document.getElementById("qrCanvas");
+      if (generateBtn) {
+        generateBtn.addEventListener("click", async () => {
+          setMsg("", true);
+          generateBtn.disabled = true;
+          generateBtn.classList.add("opacity-70");
+          const { ok, data } = await postJSON("/api/2fa/setup", {});
+          if (!ok || !data?.ok) {
+            const m = data?.message || "Could not generate secret.";
+            setMsg(m, false);
+            if (window.showAutobot) window.showAutobot("Autobot: " + m, "error");
+            generateBtn.disabled = false;
+            generateBtn.classList.remove("opacity-70");
+            return;
+          }
+          secretWrap.classList.remove("hidden");
+          secretText.textContent = data.secret;
+          uriText.textContent = data.otpauth_uri;
+          if (qrWrap && qrCanvas && window.QRCode && data.otpauth_uri) {
+            qrWrap.classList.remove("hidden");
+            window.QRCode.toCanvas(qrCanvas, data.otpauth_uri, { width: 220, margin: 1 }, () => {});
+          }
+          if (window.showAutobot) window.showAutobot("Autobot: Secret generated. Add it to your authenticator app.", "ok");
+          generateBtn.disabled = false;
+          generateBtn.classList.remove("opacity-70");
+        });
+      }
+
+      const enableForm = document.getElementById("enableForm");
+      if (enableForm) {
+        enableForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const code = document.getElementById("enableCode").value;
+          const btn = document.getElementById("enableBtn");
+          btn.disabled = true;
+          btn.classList.add("opacity-70");
+          const { ok, data } = await postJSON("/api/2fa/enable", { code, next: NEXT_PATH });
+          if (!ok || !data?.ok) {
+            const m = data?.message || "Invalid code.";
+            setMsg(m, false);
+            if (window.showAutobot) window.showAutobot("Autobot: " + m, "error");
+            btn.disabled = false;
+            btn.classList.remove("opacity-70");
+            return;
+          }
+          setMsg("Enabled. Redirecting…", true);
+          window.location.href = data.next || "/dashboard";
+        });
+      }
+
+      const verifyForm = document.getElementById("verifyForm");
+      if (verifyForm) {
+        verifyForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const code = document.getElementById("verifyCode").value;
+          const btn = document.getElementById("verifyBtn");
+          btn.disabled = true;
+          btn.classList.add("opacity-70");
+          const { ok, data } = await postJSON("/api/2fa/verify", { code, next: NEXT_PATH });
+          if (!ok || !data?.ok) {
+            const m = data?.message || "Invalid code.";
+            setMsg(m, false);
+            if (window.showAutobot) window.showAutobot("Autobot: " + m, "error");
+            btn.disabled = false;
+            btn.classList.remove("opacity-70");
+            return;
+          }
+          setMsg("Verified. Redirecting…", true);
+          window.location.href = data.next || "/dashboard";
+        });
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>Thinkobo - Daily Quiz</title>
+  </head>
+
+  <body
+    class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900"
+  >
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div
+        class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"
+      ></div>
+      <div
+        class="absolute -bottom-24 right-16 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl"
+      ></div>
+    </div>
+
+    <header
+      class="sticky top-0 z-10 border-b border-slate-200 bg-white/75 backdrop-blur"
+    >
+      <nav
+        class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3"
+      >
+        <a href="/dashboard" class="flex items-center gap-2">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-8 w-8"
+          />
+          <span class="text-base font-semibold tracking-tight">Thinkobo</span>
+        </a>
+
+        <div class="flex items-center gap-2">
+          <a
+            href="/dashboard"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Dashboard
+          </a>
+          <a
+            href="/home"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Home
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-8">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">Daily Quiz</h1>
+          <p class="mt-1 text-sm text-slate-600">
+            Answer the questions on the right. Use the left panel to jump
+            between questions.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span
+            id="progressPill"
+            class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700"
+          ></span>
+          <button
+            id="tutorialBtn"
+            type="button"
+            class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Video tutorial
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-12">
+        <aside class="lg:col-span-4">
+          <section
+            class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm"
+          >
+            <div class="mb-3 flex items-center justify-between">
+              <h2 class="text-sm font-semibold text-slate-800">Questions</h2>
+              <button
+                id="resetBtn"
+                type="button"
+                class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Reset
+              </button>
+            </div>
+
+            <div id="questionPane" class="space-y-2"></div>
+          </section>
+        </aside>
+
+        <section class="lg:col-span-8">
+          <div
+            class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+          >
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div
+                  class="text-xs font-semibold uppercase tracking-wide text-indigo-700"
+                  id="topic"
+                ></div>
+                <h2
+                  class="mt-1 text-xl font-semibold tracking-tight"
+                  id="questionTitle"
+                ></h2>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  id="prevBtn"
+                  type="button"
+                  class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Prev
+                </button>
+                <button
+                  id="nextBtn"
+                  type="button"
+                  class="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+            >
+              <p class="text-sm text-slate-700" id="story"></p>
+            </div>
+
+            <div class="mt-5">
+              <label for="answer" class="text-sm font-medium text-slate-700"
+                >Your answer</label
+              >
+              <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <input
+                  id="answer"
+                  type="number"
+                  inputmode="numeric"
+                  placeholder="Type a number"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4 sm:flex-1"
+                />
+                <button
+                  id="submitBtn"
+                  type="button"
+                  class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  Submit
+                </button>
+              </div>
+
+              <p id="result" class="mt-3 text-sm font-semibold"></p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="tutorialModal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+      <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"></div>
+      <div class="relative mx-auto flex min-h-screen max-w-4xl items-center px-4 py-10">
+        <div class="liquid-glass w-full overflow-hidden rounded-3xl shadow-lg">
+          <div class="flex items-center justify-between border-b border-white/40 px-5 py-4">
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Tutorial</div>
+              <div class="text-xs text-slate-600">How to answer questions</div>
+            </div>
+            <button
+              id="closeTutorial"
+              type="button"
+              class="rounded-xl border border-white/60 bg-white/60 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white/80"
+            >
+              Close
+            </button>
+          </div>
+
+          <div class="p-5">
+            <div class="grid gap-4 lg:grid-cols-12">
+              <aside class="lg:col-span-4">
+                <section class="rounded-2xl border border-white/60 bg-white/55 p-4">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-800">Chapters</h3>
+                    <span id="chapterCount" class="text-xs font-semibold text-slate-600"></span>
+                  </div>
+                  <div id="chapterList" class="mt-3 space-y-2"></div>
+                </section>
+
+                <section class="mt-4 rounded-2xl border border-white/60 bg-white/55 p-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="text-sm font-semibold text-slate-800">Controls</div>
+                    <span id="playState" class="text-xs font-semibold text-slate-600">Paused</span>
+                  </div>
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      id="tutorialPrev"
+                      type="button"
+                      class="rounded-xl border border-white/60 bg-white/60 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-white/80"
+                    >
+                      Prev
+                    </button>
+                    <button
+                      id="tutorialPlay"
+                      type="button"
+                      class="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                    >
+                      Play
+                    </button>
+                    <button
+                      id="tutorialNext"
+                      type="button"
+                      class="rounded-xl border border-white/60 bg-white/60 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-white/80"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div class="mt-3">
+                    <label for="tutorialSpeed" class="text-xs font-semibold text-slate-600">Speed</label>
+                    <select
+                      id="tutorialSpeed"
+                      class="mt-1 w-full rounded-xl border border-white/60 bg-white/60 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-white/80"
+                    >
+                      <option value="1" selected>1x</option>
+                      <option value="1.5">1.5x</option>
+                      <option value="2">2x</option>
+                    </select>
+                  </div>
+                  <p class="mt-3 text-xs text-slate-600">
+                    This is a “video-style” tutorial made with code and animations (no MP4).
+                  </p>
+                </section>
+              </aside>
+
+              <section class="lg:col-span-8">
+                <article class="rounded-2xl border border-white/60 bg-white/55 p-5">
+                  <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="min-w-0">
+                      <div id="chapterTag" class="text-xs font-semibold uppercase tracking-wide text-indigo-700"></div>
+                      <h3 id="chapterTitle" class="mt-1 text-xl font-semibold tracking-tight text-slate-900"></h3>
+                      <p id="chapterSummary" class="mt-1 text-sm text-slate-600"></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span
+                        id="chapterPill"
+                        class="rounded-full border border-white/60 bg-white/60 px-3 py-1 text-sm font-semibold text-slate-700"
+                      ></span>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <input
+                      id="tutorialProgress"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value="0"
+                      class="w-full cursor-pointer"
+                      aria-label="Tutorial progress"
+                    />
+                    <div class="mt-1 flex items-center justify-between text-xs font-semibold text-slate-600">
+                      <span id="chapterTimeLeft">0:00</span>
+                      <span id="chapterTimeRight">0:00</span>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 grid gap-3">
+                    <div class="rounded-2xl border border-white/60 bg-white/60 p-4">
+                      <div class="text-xs font-semibold text-slate-700">How to solve</div>
+                      <ol id="chapterSteps" class="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-700"></ol>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/60 bg-white/60 p-4">
+                      <div class="text-xs font-semibold text-slate-700">Example</div>
+                      <div id="chapterExample" class="mt-2 text-sm text-slate-700"></div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-2xl bg-slate-950">
+                      <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                        <div class="text-xs font-semibold text-white/80">Code</div>
+                        <button
+                          id="copyCodeBtn"
+                          type="button"
+                          class="rounded-xl bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/15"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                      <pre class="max-h-64 overflow-auto px-4 py-4 text-xs leading-relaxed text-white/90"><code id="chapterCode"></code></pre>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                    <p class="text-sm text-slate-600">
+                      Tip: read the story, pick the topic, then apply the steps.
+                    </p>
+                    <a
+                      href="https://www.youtube.com/@Thinkobo"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="rounded-xl border border-white/60 bg-white/60 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white/80"
+                    >
+                      More on YouTube
+                    </a>
+                  </div>
+                </article>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% from "components/popup.html" import popup %}
+    {{ popup(
+      "popupCorrect",
+      tone="success",
+      title="Correct",
+      message="Keep going—consistency beats intensity.",
+      primary_label="Continue",
+      primary_id="continueBtn",
+      secondary_label="Dashboard",
+      secondary_href="/dashboard"
+    ) }}
+    {{ popup(
+      "popupWrong",
+      tone="danger",
+      title="Wrong",
+      message="Try again. Read the story carefully and check your math.",
+      primary_label="Try again",
+      primary_id="tryAgainBtn",
+      secondary_label="Dashboard",
+      secondary_href="/dashboard"
+    ) }}
+    {{ popup(
+      "popupCertificate",
+      tone="success",
+      title="Certificate ready",
+      message="You completed 10 questions. Download your certificate as a PNG.",
+      primary_label="Download PNG",
+      primary_id="downloadCertBtn",
+      secondary_label="Dashboard",
+      secondary_href="/dashboard"
+    ) }}
+
+    <script>
+      const QUESTION_BANK = [
+        { topic: "Addition", story: "Mia has 8 stickers. She gets 7 more.", question: "How many stickers now?", answer: 15 },
+        { topic: "Addition", story: "A shop sold 12 pencils in the morning and 9 in the afternoon.", question: "How many pencils sold in total?", answer: 21 },
+        { topic: "Addition", story: "There are 14 birds on a tree. 6 more land.", question: "How many birds now?", answer: 20 },
+        { topic: "Subtraction", story: "Leo has 17 candies. He gives 5 away.", question: "How many candies left?", answer: 12 },
+        { topic: "Subtraction", story: "A library had 30 books on a shelf. 11 were borrowed.", question: "How many books remain?", answer: 19 },
+        { topic: "Subtraction", story: "You have 25 points. You lose 9 points.", question: "How many points now?", answer: 16 },
+        { topic: "Multiplication", story: "Anna has 4 baskets. Each basket has 5 apples.", question: "How many apples in total?", answer: 20 },
+        { topic: "Multiplication", story: "There are 6 rows of chairs with 3 chairs in each row.", question: "How many chairs?", answer: 18 },
+        { topic: "Multiplication", story: "A pack has 8 cookies. You buy 4 packs.", question: "How many cookies?", answer: 32 },
+        { topic: "Multiplication", story: "Each notebook costs 7 dollars. You buy 5 notebooks.", question: "How much do you pay?", answer: 35 },
+        { topic: "Division", story: "12 cookies are shared between 3 kids.", question: "How many cookies each kid?", answer: 4 },
+        { topic: "Division", story: "24 apples are packed equally into 6 bags.", question: "How many apples per bag?", answer: 4 },
+        { topic: "Division", story: "45 minutes is split into 5 equal parts.", question: "How many minutes per part?", answer: 9 },
+        { topic: "Division", story: "63 candies are shared among 9 friends equally.", question: "How many candies each?", answer: 7 },
+        { topic: "Mixed", story: "You have 3 boxes. Each box has 6 balls. You give away 5 balls.", question: "How many balls left?", answer: 13 },
+        { topic: "Mixed", story: "A farmer has 5 baskets with 4 eggs each. 6 eggs break.", question: "How many eggs are not broken?", answer: 14 },
+        { topic: "Mixed", story: "There are 10 kids. Each kid has 2 pencils. 7 pencils are lost.", question: "How many pencils remain?", answer: 13 },
+        { topic: "Fractions", story: "A pizza is cut into 8 equal slices. You eat 3 slices.", question: "How many slices are left?", answer: 5 },
+        { topic: "Fractions", story: "A chocolate bar has 12 pieces. You share it equally with 3 friends (4 people total).", question: "How many pieces does each person get?", answer: 3 },
+        { topic: "Time", story: "A class starts at 9:10 and ends at 9:55.", question: "How many minutes long is the class?", answer: 45 },
+        { topic: "Money", story: "You have $20. You buy a toy for $13.", question: "How much money is left?", answer: 7 },
+        { topic: "Money", story: "A book costs $9. You buy 3 books.", question: "How much do you pay?", answer: 27 },
+        { topic: "Shapes", story: "A rectangle has length 8 and width 3.", question: "What is its perimeter?", answer: 22 },
+        { topic: "Shapes", story: "A square has side length 6.", question: "What is its perimeter?", answer: 24 },
+      ];
+
+      function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function pickQuestions(count) {
+        const copy = QUESTION_BANK.slice();
+        shuffleInPlace(copy);
+        return copy.slice(0, Math.min(count, copy.length));
+      }
+
+      const questions = pickQuestions(10);
+      let current = 0;
+      const answers = new Array(questions.length).fill(null);
+      const correctFlags = new Array(questions.length).fill(false);
+
+      const progressPill = document.getElementById("progressPill");
+      const questionPane = document.getElementById("questionPane");
+      const topicEl = document.getElementById("topic");
+      const titleEl = document.getElementById("questionTitle");
+      const storyEl = document.getElementById("story");
+      const answerEl = document.getElementById("answer");
+      const resultEl = document.getElementById("result");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const submitBtn = document.getElementById("submitBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      const popupCorrect = document.getElementById("popupCorrect");
+      const popupWrong = document.getElementById("popupWrong");
+      const popupCertificate = document.getElementById("popupCertificate");
+      const continueBtn = document.getElementById("continueBtn");
+      const tryAgainBtn = document.getElementById("tryAgainBtn");
+      const downloadCertBtn = document.getElementById("downloadCertBtn");
+
+      const tutorialBtn = document.getElementById("tutorialBtn");
+      const tutorialModal = document.getElementById("tutorialModal");
+      const closeTutorial = document.getElementById("closeTutorial");
+      const chapterList = document.getElementById("chapterList");
+      const chapterCount = document.getElementById("chapterCount");
+      const chapterTag = document.getElementById("chapterTag");
+      const chapterTitle = document.getElementById("chapterTitle");
+      const chapterSummary = document.getElementById("chapterSummary");
+      const chapterPill = document.getElementById("chapterPill");
+      const chapterSteps = document.getElementById("chapterSteps");
+      const chapterExample = document.getElementById("chapterExample");
+      const chapterCode = document.getElementById("chapterCode");
+      const copyCodeBtn = document.getElementById("copyCodeBtn");
+      const tutorialPrev = document.getElementById("tutorialPrev");
+      const tutorialNext = document.getElementById("tutorialNext");
+      const tutorialPlay = document.getElementById("tutorialPlay");
+      const tutorialSpeed = document.getElementById("tutorialSpeed");
+      const tutorialProgress = document.getElementById("tutorialProgress");
+      const playState = document.getElementById("playState");
+      const chapterTimeLeft = document.getElementById("chapterTimeLeft");
+      const chapterTimeRight = document.getElementById("chapterTimeRight");
+
+      const TUTORIAL_CHAPTERS = [
+        {
+          topic: "Addition",
+          title: "Addition = put together",
+          summary: "Add numbers when the story says “more”, “total”, or “in all”.",
+          steps: [
+            "Find the numbers in the story.",
+            "Add them together.",
+            "Say the total as your answer.",
+          ],
+          example: "Mia has 8 stickers. She gets 7 more. 8 + 7 = 15.",
+          code: `// Addition: sum two numbers
+function add(a, b) {
+  return a + b;
+}
+
+// Example:
+// add(8, 7) -> 15`,
+        },
+        {
+          topic: "Subtraction",
+          title: "Subtraction = take away",
+          summary: "Subtract when you see “left”, “lost”, “gave away”, or “remain”.",
+          steps: [
+            "Find the starting amount.",
+            "Find how much was taken away.",
+            "Subtract: start − taken.",
+          ],
+          example: "Leo has 17 candies. He gives 5 away. 17 − 5 = 12.",
+          code: `// Subtraction: take away
+function subtract(start, taken) {
+  return start - taken;
+}
+
+// Example:
+// subtract(17, 5) -> 12`,
+        },
+        {
+          topic: "Multiplication",
+          title: "Multiplication = equal groups",
+          summary: "Multiply when the story has “rows”, “each”, or repeated groups.",
+          steps: [
+            "Identify groups and how many in each group.",
+            "Multiply: groups × each.",
+            "Check if the story asks for total items.",
+          ],
+          example: "4 baskets, 5 apples each. 4 × 5 = 20 apples.",
+          code: `// Multiplication: groups of the same size
+function multiply(groups, each) {
+  return groups * each;
+}
+
+// Example:
+// multiply(4, 5) -> 20`,
+        },
+        {
+          topic: "Division",
+          title: "Division = share equally",
+          summary: "Divide when you see “shared equally”, “split”, or “per”.",
+          steps: [
+            "Find the total amount.",
+            "Find how many groups/people/bags.",
+            "Divide: total ÷ groups.",
+          ],
+          example: "12 cookies shared between 3 kids. 12 ÷ 3 = 4 each.",
+          code: `// Division: equal sharing
+function divide(total, groups) {
+  return total / groups;
+}
+
+// Example:
+// divide(12, 3) -> 4`,
+        },
+        {
+          topic: "Fractions",
+          title: "Fractions = parts of a whole",
+          summary: "A fraction shows how many parts are used out of all equal parts.",
+          steps: [
+            "Find how many equal parts the whole has.",
+            "Find how many parts are used/eaten/colored.",
+            "Compute what’s left: total parts − used parts.",
+          ],
+          example: "Pizza has 8 slices. You eat 3. Left = 8 − 3 = 5.",
+          code: `// Fractions (simple): remaining parts
+function remainingParts(totalParts, usedParts) {
+  return totalParts - usedParts;
+}
+
+// Example:
+// remainingParts(8, 3) -> 5`,
+        },
+        {
+          topic: "Time",
+          title: "Time = find the difference",
+          summary: "Convert times to minutes, then subtract to get how long.",
+          steps: [
+            "Convert start time to minutes: h×60 + m.",
+            "Convert end time to minutes.",
+            "Subtract: end − start.",
+          ],
+          example: "9:10 to 9:55 = (9×60+55) − (9×60+10) = 45 minutes.",
+          code: `// Time difference in minutes
+function toMinutes(h, m) {
+  return h * 60 + m;
+}
+
+function diffMinutes(startH, startM, endH, endM) {
+  return toMinutes(endH, endM) - toMinutes(startH, startM);
+}
+
+// Example:
+// diffMinutes(9, 10, 9, 55) -> 45`,
+        },
+        {
+          topic: "Money",
+          title: "Money = add or subtract costs",
+          summary: "Use subtraction for “change/left” and multiplication for “each”.",
+          steps: [
+            "If buying multiple: cost = price × quantity.",
+            "If paying from a total: left = money − cost.",
+            "Answer in dollars (or currency).",
+          ],
+          example: "$20 total, toy costs $13. Left = 20 − 13 = $7.",
+          code: `// Money: total cost + remaining
+function totalCost(price, qty) {
+  return price * qty;
+}
+
+function moneyLeft(money, cost) {
+  return money - cost;
+}
+
+// Example:
+// moneyLeft(20, 13) -> 7`,
+        },
+        {
+          topic: "Shapes",
+          title: "Shapes = perimeter",
+          summary: "Perimeter means “all the way around”. Add all side lengths.",
+          steps: [
+            "Rectangle: P = 2×(length + width).",
+            "Square: P = 4×side.",
+            "Plug in the numbers and compute.",
+          ],
+          example: "Rectangle 8 by 3: 2×(8+3)=22. Square side 6: 4×6=24.",
+          code: `// Perimeter formulas
+function perimeterRectangle(length, width) {
+  return 2 * (length + width);
+}
+
+function perimeterSquare(side) {
+  return 4 * side;
+}
+
+// Examples:
+// perimeterRectangle(8, 3) -> 22
+// perimeterSquare(6) -> 24`,
+        },
+      ];
+
+      let tutorialIndex = 0;
+      let tutorialTimer = null;
+
+      function tutorialIntervalMs() {
+        const speed = Number(tutorialSpeed?.value || 1);
+        const base = 7500;
+        return Math.max(2500, Math.floor(base / speed));
+      }
+
+      function stopTutorial() {
+        if (tutorialTimer) window.clearInterval(tutorialTimer);
+        tutorialTimer = null;
+        if (tutorialPlay) tutorialPlay.textContent = "Play";
+        if (playState) playState.textContent = "Paused";
+      }
+
+      function startTutorial() {
+        stopTutorial();
+        if (tutorialPlay) tutorialPlay.textContent = "Pause";
+        if (playState) playState.textContent = "Playing";
+        tutorialTimer = window.setInterval(() => {
+          tutorialIndex = (tutorialIndex + 1) % TUTORIAL_CHAPTERS.length;
+          renderTutorial(tutorialIndex);
+        }, tutorialIntervalMs());
+      }
+
+      function setProgressFromIndex(index) {
+        if (!tutorialProgress) return;
+        const max = TUTORIAL_CHAPTERS.length - 1;
+        const pct = max <= 0 ? 0 : Math.round((index / max) * 100);
+        tutorialProgress.value = String(pct);
+      }
+
+      function indexFromProgress() {
+        if (!tutorialProgress) return 0;
+        const pct = Number(tutorialProgress.value || 0);
+        const max = TUTORIAL_CHAPTERS.length - 1;
+        return Math.round((pct / 100) * max);
+      }
+
+      function formatTime(seconds) {
+        const s = Math.max(0, Math.floor(seconds));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return `${m}:${String(r).padStart(2, "0")}`;
+      }
+
+      function renderTutorial(index) {
+        const ch = TUTORIAL_CHAPTERS[index];
+        if (!ch) return;
+
+        tutorialIndex = index;
+        if (chapterCount) chapterCount.textContent = `${TUTORIAL_CHAPTERS.length} topics`;
+        if (chapterTag) chapterTag.textContent = ch.topic;
+        if (chapterTitle) chapterTitle.textContent = ch.title;
+        if (chapterSummary) chapterSummary.textContent = ch.summary;
+        if (chapterPill) chapterPill.textContent = `${index + 1} / ${TUTORIAL_CHAPTERS.length}`;
+        if (chapterExample) chapterExample.textContent = ch.example;
+        if (chapterCode) chapterCode.textContent = ch.code;
+
+        if (chapterSteps) {
+          chapterSteps.innerHTML = "";
+          (ch.steps || []).forEach((step) => {
+            const li = document.createElement("li");
+            li.textContent = step;
+            chapterSteps.appendChild(li);
+          });
+        }
+
+        if (chapterList) {
+          chapterList.querySelectorAll("[data-chapter]").forEach((btn) => {
+            btn.classList.toggle("ring-2", Number(btn.getAttribute("data-chapter")) === index);
+          });
+        }
+
+        setProgressFromIndex(index);
+        const per = tutorialIntervalMs() / 1000;
+        if (chapterTimeLeft) chapterTimeLeft.textContent = formatTime(index * per);
+        if (chapterTimeRight) chapterTimeRight.textContent = formatTime((TUTORIAL_CHAPTERS.length - 1) * per);
+      }
+
+      function buildChapterList() {
+        if (!chapterList) return;
+        chapterList.innerHTML = "";
+        TUTORIAL_CHAPTERS.forEach((ch, i) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.setAttribute("data-chapter", String(i));
+          btn.className =
+            "w-full rounded-2xl border border-white/60 bg-white/60 px-3 py-2 text-left text-sm font-semibold text-slate-800 hover:bg-white/80";
+          btn.innerHTML = `<div class="flex items-center justify-between gap-3"><span>${ch.topic}</span><span class="text-xs font-semibold text-slate-500">${i + 1}</span></div>`;
+          btn.addEventListener("click", () => {
+            stopTutorial();
+            renderTutorial(i);
+          });
+          chapterList.appendChild(btn);
+        });
+      }
+
+      function openTutorial() {
+        if (!tutorialModal) return;
+        tutorialModal.classList.remove("hidden");
+        tutorialModal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("overflow-hidden");
+        window.setTimeout(() => closeTutorial?.focus(), 0);
+        buildChapterList();
+        renderTutorial(tutorialIndex);
+      }
+
+      function closeTutorialModal() {
+        if (!tutorialModal) return;
+        tutorialModal.classList.add("hidden");
+        tutorialModal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("overflow-hidden");
+        stopTutorial();
+      }
+
+      tutorialBtn?.addEventListener("click", openTutorial);
+      closeTutorial?.addEventListener("click", closeTutorialModal);
+      tutorialModal?.addEventListener("click", (e) => {
+        if (e.target === tutorialModal) closeTutorialModal();
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && tutorialModal && !tutorialModal.classList.contains("hidden")) {
+          closeTutorialModal();
+        }
+      });
+
+      tutorialPrev?.addEventListener("click", () => {
+        stopTutorial();
+        const next = (tutorialIndex - 1 + TUTORIAL_CHAPTERS.length) % TUTORIAL_CHAPTERS.length;
+        renderTutorial(next);
+      });
+      tutorialNext?.addEventListener("click", () => {
+        stopTutorial();
+        const next = (tutorialIndex + 1) % TUTORIAL_CHAPTERS.length;
+        renderTutorial(next);
+      });
+      tutorialPlay?.addEventListener("click", () => {
+        if (tutorialTimer) stopTutorial();
+        else startTutorial();
+      });
+      tutorialSpeed?.addEventListener("change", () => {
+        if (tutorialTimer) startTutorial();
+        else renderTutorial(tutorialIndex);
+      });
+      tutorialProgress?.addEventListener("input", () => {
+        stopTutorial();
+        renderTutorial(indexFromProgress());
+      });
+      copyCodeBtn?.addEventListener("click", async () => {
+        const text = (chapterCode?.textContent || "").trim();
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          if (window.showAutobot) window.showAutobot("Autobot: Code copied.", "ok");
+        } catch {
+          if (window.showAutobot) window.showAutobot("Autobot: Could not copy.", "error");
+        }
+      });
+
+      const correctAudio = new Audio("{{ url_for('static', filename='correct.mp3') }}");
+      const wrongAudio = new Audio("{{ url_for('static', filename='wrong.mp3') }}");
+      correctAudio.preload = "auto";
+      wrongAudio.preload = "auto";
+
+      function setPopupVisible(el, visible) {
+        if (!el) return;
+        el.classList.toggle("hidden", !visible);
+        el.classList.toggle("flex", visible);
+      }
+
+      function hideAllPopups() {
+        setPopupVisible(popupCorrect, false);
+        setPopupVisible(popupWrong, false);
+        setPopupVisible(popupCertificate, false);
+      }
+
+      function wirePopup(root) {
+        if (!root) return;
+        root.querySelectorAll("[data-popup-close]").forEach((btn) => {
+          btn.addEventListener("click", () => setPopupVisible(root, false));
+        });
+        root.addEventListener("click", (e) => {
+          if (e.target === root) setPopupVisible(root, false);
+        });
+      }
+
+      wirePopup(popupCorrect);
+      wirePopup(popupWrong);
+      wirePopup(popupCertificate);
+
+      function playSound(audio) {
+        try {
+          audio.currentTime = 0;
+          const p = audio.play();
+          if (p && typeof p.catch === "function") p.catch(() => {});
+        } catch {}
+      }
+
+      function setResult(text, kind) {
+        resultEl.textContent = text || "";
+        resultEl.className =
+          "mt-3 text-sm font-semibold " +
+          (kind === "ok"
+            ? "text-emerald-700"
+            : kind === "err"
+              ? "text-rose-700"
+              : "text-slate-600");
+      }
+
+      function buildQuestionPane() {
+        questionPane.innerHTML = "";
+
+        questions.forEach((q, i) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "w-full rounded-2xl border p-3 text-left transition " +
+            (i === current
+              ? "border-indigo-200 bg-indigo-50"
+              : "border-slate-200 bg-white hover:bg-slate-50");
+
+          const row = document.createElement("div");
+          row.className = "flex items-start justify-between gap-3";
+
+          const left = document.createElement("div");
+          const label = document.createElement("div");
+          label.className = "text-sm font-semibold text-slate-900";
+          label.textContent = `Question ${i + 1}`;
+
+          const meta = document.createElement("div");
+          meta.className = "mt-0.5 text-xs font-medium text-slate-600";
+          meta.textContent = q.topic;
+
+          left.appendChild(label);
+          left.appendChild(meta);
+
+          const badge = document.createElement("div");
+          const saved = answers[i];
+          const isAnswered = saved !== null && saved !== "";
+          badge.className =
+            "shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold " +
+            (isAnswered ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-700");
+          badge.textContent = isAnswered ? "Answered" : "Todo";
+
+          row.appendChild(left);
+          row.appendChild(badge);
+          btn.appendChild(row);
+
+          btn.addEventListener("click", () => {
+            current = i;
+            loadQuestion();
+          });
+
+          questionPane.appendChild(btn);
+        });
+      }
+
+      function loadQuestion() {
+        const q = questions[current];
+        progressPill.textContent = `Question ${current + 1} / ${questions.length}`;
+        topicEl.textContent = `Topic: ${q.topic}`;
+        titleEl.textContent = q.question;
+        storyEl.textContent = q.story;
+
+        const saved = answers[current];
+        answerEl.value = saved === null ? "" : String(saved);
+        setResult("", "idle");
+
+        prevBtn.disabled = current === 0;
+        prevBtn.classList.toggle("opacity-50", prevBtn.disabled);
+        prevBtn.classList.toggle("cursor-not-allowed", prevBtn.disabled);
+
+        nextBtn.disabled = current === questions.length - 1;
+        nextBtn.classList.toggle("opacity-50", nextBtn.disabled);
+        nextBtn.classList.toggle("cursor-not-allowed", nextBtn.disabled);
+
+        buildQuestionPane();
+        answerEl.focus();
+      }
+
+      async function getStudentName() {
+        try {
+          const res = await fetch("/api/me");
+          const data = await res.json().catch(() => ({}));
+          const name = data?.user?.name;
+          if (typeof name === "string" && name.trim()) return name.trim();
+        } catch {}
+        return "Student";
+      }
+
+      function formatDate(date) {
+        try {
+          return date.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        } catch {
+          return String(date);
+        }
+      }
+
+      function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      async function loadLogoImage() {
+        try {
+          const res = await fetch(
+            "{{ url_for('static', filename='favicon.svg') }}",
+            { cache: "force-cache" }
+          );
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const img = new Image();
+          img.decoding = "async";
+          const loaded = new Promise((resolve, reject) => {
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+          });
+          img.src = url;
+          const out = await loaded;
+          URL.revokeObjectURL(url);
+          return out;
+        } catch {
+          return null;
+        }
+      }
+
+      async function generateCertificatePng({ name, completedCount, score }) {
+        const width = 720;
+        const height = 480;
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+
+        const logo = await loadLogoImage();
+
+        // Background
+        const g = ctx.createLinearGradient(0, 0, width, height);
+        g.addColorStop(0, "#ffffff");
+        g.addColorStop(1, "#f1f5f9");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, width, height);
+
+        // Border
+        ctx.strokeStyle = "rgba(79,70,229,0.25)";
+        ctx.lineWidth = 10;
+        ctx.strokeRect(18, 18, width - 36, height - 36);
+
+        // Header badge
+        ctx.fillStyle = "rgba(79,70,229,0.08)";
+        roundRect(ctx, 42, 42, width - 84, 64, 18);
+        ctx.fill();
+
+        // Logo
+        if (logo) {
+          const s = 40;
+          const x = 58;
+          const y = 54;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2, s / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(logo, x, y, s, s);
+          ctx.restore();
+        }
+
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "700 18px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("THINKOBO", width / 2, 82);
+
+        // Title
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "800 42px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText("Certificate of Completion", width / 2, 165);
+
+        // Body
+        ctx.fillStyle = "#334155";
+        ctx.font = "500 18px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText("This certifies that", width / 2, 215);
+
+        // Name
+        ctx.fillStyle = "#111827";
+        ctx.font = "800 34px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText(name, width / 2, 265);
+
+        // Details
+        ctx.fillStyle = "#334155";
+        ctx.font = "500 18px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText(`completed the Daily Quiz (${completedCount} questions).`, width / 2, 305);
+
+        const dateText = formatDate(new Date());
+        ctx.font = "500 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillStyle = "#475569";
+        ctx.fillText(`Date: ${dateText}`, width / 2, 350);
+
+        // Score pill
+        const scoreText = `Score: ${score} / ${completedCount}`;
+        ctx.font = "700 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        const scoreW = Math.min(
+          360,
+          Math.max(220, ctx.measureText(scoreText).width + 44)
+        );
+        const scoreX = width / 2 - scoreW / 2;
+        const scoreY = 365;
+        ctx.fillStyle = "rgba(79,70,229,0.10)";
+        roundRect(ctx, scoreX, scoreY, scoreW, 40, 999);
+        ctx.fill();
+        ctx.fillStyle = "#3730a3";
+        ctx.textAlign = "center";
+        ctx.fillText(scoreText, width / 2, scoreY + 26);
+
+        // Signature line
+        ctx.strokeStyle = "rgba(15,23,42,0.2)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(width / 2 - 140, 405);
+        ctx.lineTo(width / 2 + 140, 405);
+        ctx.stroke();
+        ctx.fillStyle = "#64748b";
+        ctx.font = "600 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText("Thinkobo Learning Platform", width / 2, 430);
+
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        return blob;
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + w, y, x + w, y + h, radius);
+        ctx.arcTo(x + w, y + h, x, y + h, radius);
+        ctx.arcTo(x, y + h, x, y, radius);
+        ctx.arcTo(x, y, x + w, y, radius);
+        ctx.closePath();
+      }
+
+      function submitAnswer() {
+        const raw = answerEl.value;
+        answers[current] = raw;
+
+        const user = Number(raw);
+        const correct = questions[current].answer;
+
+        if (raw === "" || !Number.isFinite(user)) {
+          setResult("Please enter a number.", "err");
+          buildQuestionPane();
+          return;
+        }
+
+        if (user === correct) {
+          correctFlags[current] = true;
+          playSound(correctAudio);
+          if (current === questions.length - 1) {
+            setPopupVisible(popupCertificate, true);
+          } else {
+            setPopupVisible(popupCorrect, true);
+          }
+          setResult("", "idle");
+        } else {
+          correctFlags[current] = false;
+          playSound(wrongAudio);
+          setPopupVisible(popupWrong, true);
+          setResult("❌", "err");
+          resultEl.classList.add("text-3xl");
+          answerEl.classList.add("ring-4", "ring-rose-500/20");
+          window.setTimeout(() => {
+            answerEl.classList.remove("ring-4", "ring-rose-500/20");
+          }, 650);
+        }
+
+        buildQuestionPane();
+      }
+
+      function continueAfterCorrect() {
+        hideAllPopups();
+        if (current < questions.length - 1) {
+          current += 1;
+          loadQuestion();
+        } else {
+          setPopupVisible(popupCertificate, true);
+        }
+      }
+
+      function tryAgain() {
+        hideAllPopups();
+        answerEl.focus();
+      }
+
+      prevBtn.addEventListener("click", () => {
+        if (current > 0) {
+          current -= 1;
+          loadQuestion();
+        }
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (current < questions.length - 1) {
+          current += 1;
+          loadQuestion();
+        }
+      });
+
+      submitBtn.addEventListener("click", submitAnswer);
+      answerEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") submitAnswer();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        for (let i = 0; i < answers.length; i++) answers[i] = null;
+        setResult("", "idle");
+        loadQuestion();
+      });
+
+      continueBtn.addEventListener("click", continueAfterCorrect);
+      tryAgainBtn.addEventListener("click", tryAgain);
+
+      downloadCertBtn.addEventListener("click", async () => {
+        downloadCertBtn.disabled = true;
+        downloadCertBtn.textContent = "Generating...";
+        const name = await getStudentName();
+        const score = correctFlags.filter(Boolean).length;
+        const blob = await generateCertificatePng({
+          name,
+          completedCount: questions.length,
+          score,
+        });
+        if (blob) {
+          const safeName = name.replace(/[^a-z0-9_-]+/gi, "_").slice(0, 40) || "student";
+          downloadBlob(blob, `thinkobo_certificate_${safeName}.png`);
+        }
+        downloadCertBtn.textContent = "Download PNG";
+        downloadCertBtn.disabled = false;
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (!popupCorrect.classList.contains("hidden") && e.key === "Enter") {
+          continueAfterCorrect();
+          return;
+        }
+        if (!popupWrong.classList.contains("hidden") && (e.key === "Enter" || e.key === "Escape")) {
+          tryAgain();
+        }
+      });
+
+      loadQuestion();
+    </script>
+  </body>
+</html>

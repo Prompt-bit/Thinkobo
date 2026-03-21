@@ -1,0 +1,88 @@
+{% macro autobot_banner(autobot) %}
+  {% set kind = (autobot.kind if autobot else '') %}
+  {% set message = (autobot.message if autobot else '') %}
+  <div
+    id="autobotToast"
+    class="fixed right-4 top-4 z-50 max-w-md"
+    data-kind="{{ kind }}"
+  >
+    <div
+      id="autobotCard"
+      class="hidden rounded-2xl border bg-white p-4 shadow-lg"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="flex items-start gap-3">
+        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-indigo-600/10 text-indigo-700">
+          <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+            <path d="M12 2a7 7 0 00-7 7v4.2l-1.6 3.2a1 1 0 00.9 1.4H7v2a2 2 0 002 2h6a2 2 0 002-2v-2h2.7a1 1 0 00.9-1.4L19 13.2V9a7 7 0 00-7-7zm-3 8.5a1 1 0 110-2 1 1 0 010 2zm6 0a1 1 0 110-2 1 1 0 010 2z"></path>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="text-sm font-semibold leading-tight">Autobot</div>
+          <div id="autobotText" class="mt-0.5 text-sm text-slate-700">{{ message }}</div>
+        </div>
+        <button
+          type="button"
+          id="autobotClose"
+          class="ml-auto rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+          aria-label="Close"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const toast = document.getElementById("autobotToast");
+      const card = document.getElementById("autobotCard");
+      const text = document.getElementById("autobotText");
+      const close = document.getElementById("autobotClose");
+      if (!toast || !card || !text) return;
+
+      function applyKind(kind) {
+        card.classList.remove(
+          "border-slate-200",
+          "border-emerald-200",
+          "border-rose-200",
+          "bg-white",
+          "bg-emerald-50",
+          "bg-rose-50"
+        );
+        if (kind === "ok") {
+          card.classList.add("border-emerald-200", "bg-emerald-50");
+        } else if (kind === "error") {
+          card.classList.add("border-rose-200", "bg-rose-50");
+        } else {
+          card.classList.add("border-slate-200", "bg-white");
+        }
+      }
+
+      function showAutobot(message, kind) {
+        if (!message) return;
+        text.textContent = message;
+        applyKind(kind || "info");
+        card.classList.remove("hidden");
+        window.clearTimeout(window.__autobotTimer);
+        window.__autobotTimer = window.setTimeout(() => {
+          card.classList.add("hidden");
+        }, 4500);
+      }
+
+      if (close) {
+        close.addEventListener("click", () => {
+          card.classList.add("hidden");
+        });
+      }
+
+      const initialText = (text.textContent || "").trim();
+      const initialKind = toast.getAttribute("data-kind") || "info";
+      if (initialText) showAutobot(initialText, initialKind);
+
+      window.showAutobot = showAutobot;
+    })();
+  </script>
+{% endmacro %}
+

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='video_promo.css') }}"
+    />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>Thinkobo - Home</title>
+  </head>
+
+  <body class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"></div>
+      <div class="absolute -bottom-24 right-12 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+    </div>
+    <header
+      class="sticky top-0 z-10 border-b border-slate-200 bg-white/75 backdrop-blur"
+    >
+      <nav
+        class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3"
+      >
+        <a href="/home" class="flex items-center gap-2">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-8 w-8"
+          />
+          <span class="text-base font-semibold tracking-tight">Thinkobo</span>
+        </a>
+
+        <div class="flex items-center gap-3">
+          <a
+            id="signinLink"
+            href="/auth"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Sign in
+          </a>
+
+          <button
+            id="logoutBtn"
+            type="button"
+            class="hidden rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Log out
+          </button>
+
+          <div
+            class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5"
+          >
+            <div
+              id="userAvatar"
+              class="grid h-7 w-7 place-items-center rounded-full bg-indigo-600 text-xs font-semibold text-white"
+              aria-hidden="true"
+            >
+              G
+            </div>
+            <div class="leading-tight">
+              <div id="userName" class="text-sm font-semibold">Guest</div>
+              <div id="userEmail" class="text-xs text-slate-500">
+                Not signed in
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-10">
+      <section class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div class="relative grid gap-10 p-8 lg:grid-cols-2 lg:items-center sm:p-10">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-indigo-600/10 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-600/20">
+              Thinkobo
+              <span class="h-1 w-1 rounded-full bg-indigo-700/50"></span>
+              Where young minds start thinking
+            </div>
+
+            <h1 class="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              Where young minds start thinking
+            </h1>
+            <p class="mt-3 text-base text-slate-600">
+              Thinkobo is where young minds can start thinking and let your child
+              learn about subjects.
+            </p>
+
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+              <a
+                href="/auth"
+                class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+              >
+                Get started
+              </a>
+              <a
+                href="#promo"
+                data-watch-video
+                data-highlight-target="promo"
+                class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Watch video
+              </a>
+              <a
+                href="/reviews?site=thinkobo"
+                class="group flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 hover:bg-slate-50 sm:w-auto"
+                aria-label="Read Thinkobo reviews"
+              >
+                <img
+                  src="{{ url_for('static', filename='favicon.svg') }}"
+                  alt="Thinkobo logo"
+                  class="h-10 w-10 rounded-2xl border border-slate-200 bg-slate-50 p-2"
+                />
+                <span class="min-w-0 leading-tight">
+                  <span class="block text-sm font-semibold text-slate-900">Read reviews</span>
+                  <span class="block text-xs text-slate-600">Official Thinkobo page</span>
+                </span>
+                <span class="ml-auto shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                  Official
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <div id="promo">
+            {% from "components/video_promo.html" import promo_video %} {{
+            promo_video(url_for('static', filename='video-advertisement.mp4'),
+            title="Promo") }}
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-14">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold tracking-tight">How it works</h2>
+            <p class="mt-1 text-sm text-slate-600">Three simple steps to start learning on Thinkobo.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-4 md:grid-cols-3">
+          <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-indigo-600/10 text-indigo-700">
+              <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
+                <path d="M12 2a7 7 0 00-7 7v2a3 3 0 003 3h8a3 3 0 003-3V9a7 7 0 00-7-7zm-4 9V9a4 4 0 118 0v2a1 1 0 01-1 1H9a1 1 0 01-1-1zm-2 9a4 4 0 014-4h4a4 4 0 014 4v1H6v-1z"></path>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-base font-semibold">Create an account</h3>
+            <p class="mt-1 text-sm text-slate-600">Sign up once so your progress stays saved.</p>
+          </article>
+
+          <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-600/10 text-emerald-700">
+              <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
+                <path d="M12 3l10 6-10 6L2 9l10-6zm0 10.2L4.4 9 12 4.8 19.6 9 12 13.2z"></path>
+                <path d="M4 12.5l8 4.8 8-4.8v2.3l-8 4.9-8-4.9v-2.3z"></path>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-base font-semibold">Pick a course</h3>
+            <p class="mt-1 text-sm text-slate-600">Choose what your child wants to learn today.</p>
+          </article>
+
+          <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-600/10 text-sky-700">
+              <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
+                <path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm-1-14h2v6h-2V8zm0 8h2v2h-2v-2z"></path>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-base font-semibold">Practice daily</h3>
+            <p class="mt-1 text-sm text-slate-600">Take quick lessons and the daily quiz to improve.</p>
+          </article>
+        </div>
+      </section>
+
+      
+    </main>
+
+    <footer class="mt-14 border-t border-slate-200 bg-white/60 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8">
+        <div class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-6 w-6"
+          />
+          Thinkobo
+        </div>
+        <a
+          href="https://www.youtube.com/@Thinkobo"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Visit our YouTube
+          <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+            <path d="M10 15l5-3-5-3v6zm12-3c0-2.4-.2-4-2.1-4.3C17.7 7.4 14.8 7.2 12 7.2s-5.7.2-7.9.5C2.2 8 2 9.6 2 12s.2 4 2.1 4.3c2.2.3 5.1.5 7.9.5s5.7-.2 7.9-.5C21.8 16 22 14.4 22 12z"></path>
+          </svg>
+        </a>
+      </div>
+    </footer>
+
+    <script>
+      const userAvatar = document.getElementById("userAvatar");
+      const userName = document.getElementById("userName");
+      const userEmail = document.getElementById("userEmail");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const signinLink = document.getElementById("signinLink");
+
+      function initialsFromName(name) {
+        const safe = (name || "").trim();
+        if (!safe) return "G";
+        const parts = safe.split(/\\s+/).filter(Boolean);
+        const first = parts[0]?.[0] || "G";
+        const second = parts.length > 1 ? parts[parts.length - 1][0] : "";
+        return (first + second).toUpperCase();
+      }
+
+      function setUserUI(user) {
+        if (!user || (!user.name && !user.email)) {
+          userAvatar.textContent = "G";
+          userName.textContent = "Guest";
+          userEmail.textContent = "Not signed in";
+          logoutBtn.classList.add("hidden");
+          signinLink.classList.remove("hidden");
+          signinLink.textContent = "Sign in";
+          signinLink.setAttribute("href", "/auth");
+          return;
+        }
+        userAvatar.textContent = initialsFromName(user.name);
+        userName.textContent = user.name || "User";
+        userEmail.textContent = user.email || "";
+        logoutBtn.classList.remove("hidden");
+        signinLink.classList.remove("hidden");
+        signinLink.textContent = "Dashboard";
+        signinLink.setAttribute("href", "/dashboard");
+      }
+
+      async function postJSON(url, payload) {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      async function refreshMe() {
+        const res = await fetch("/api/me");
+        const data = await res.json().catch(() => ({}));
+        setUserUI(data?.user);
+      }
+
+      logoutBtn.addEventListener("click", async () => {
+        await postJSON("/api/logout", {});
+        await refreshMe();
+      });
+
+      refreshMe();
+    </script>
+
+    <script src="{{ url_for('static', filename='video_promo.js') }}"></script>
+
+    <script>
+      function highlightPromo(targetId) {
+        const el = document.getElementById(targetId);
+        if (!el) return;
+
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        const card = el.querySelector("[data-video-promo]") || el;
+        card.classList.add("ring-4", "ring-indigo-500/30");
+        window.setTimeout(() => {
+          card.classList.remove("ring-4", "ring-indigo-500/30");
+        }, 1400);
+      }
+
+      document.querySelectorAll("[data-watch-video]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const targetId = btn.getAttribute("data-highlight-target") || "promo";
+          e.preventDefault();
+          highlightPromo(targetId);
+        });
+      });
+    </script>
+  </body>
+</html>

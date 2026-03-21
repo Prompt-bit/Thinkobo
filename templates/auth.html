@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>Thinkobo - Sign in</title>
+  </head>
+  <body class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"></div>
+      <div class="absolute -bottom-24 left-16 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl"></div>
+    </div>
+    <header
+      class="sticky top-0 z-10 border-b border-slate-200 bg-white/75 backdrop-blur"
+    >
+      <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <a href="/home" class="flex items-center gap-2">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-8 w-8"
+          />
+          <span class="text-base font-semibold tracking-tight">Thinkobo</span>
+        </a>
+
+        <div class="flex items-center gap-3">
+          <a
+            id="dashboardLink"
+            href="/dashboard"
+            class="hidden rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Dashboard
+          </a>
+
+          <button
+            id="logoutBtn"
+            type="button"
+            class="hidden rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Log out
+          </button>
+
+          <div
+            class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5"
+          >
+            <div
+              id="userAvatar"
+              class="grid h-7 w-7 place-items-center rounded-full bg-indigo-600 text-xs font-semibold text-white"
+              aria-hidden="true"
+            >
+              G
+            </div>
+            <div class="leading-tight">
+              <div id="userName" class="text-sm font-semibold">Guest</div>
+              <div id="userEmail" class="text-xs text-slate-500">
+                Not signed in
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-4 py-10">
+      <div class="mb-8">
+        <h1 class="text-2xl font-semibold tracking-tight">Login / Sign up</h1>
+        <p class="mt-1 text-sm text-slate-600">
+          Your account is stored in the database and sessions are server-side.
+        </p>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <section
+          class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <h2 class="text-lg font-semibold">Log in</h2>
+          <p class="mt-1 text-sm text-slate-600">Welcome back.</p>
+
+          <form id="loginForm" class="mt-5 space-y-4">
+            <div>
+              <label for="loginEmail" class="text-sm font-medium text-slate-700"
+                >Email</label
+              >
+              <input
+                id="loginEmail"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label
+                for="loginPassword"
+                class="text-sm font-medium text-slate-700"
+                >Password</label
+              >
+              <input
+                id="loginPassword"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+                minlength="8"
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+                placeholder="********"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            >
+              Log in
+            </button>
+
+            <p id="loginMsg" class="text-sm"></p>
+          </form>
+        </section>
+
+        <section
+          class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <h2 class="text-lg font-semibold">Sign up</h2>
+          <p class="mt-1 text-sm text-slate-600">Create an account.</p>
+
+          <form id="signupForm" class="mt-5 space-y-4">
+            <div>
+              <label
+                for="signupName"
+                class="text-sm font-medium text-slate-700"
+                >Name</label
+              >
+              <input
+                id="signupName"
+                name="name"
+                type="text"
+                autocomplete="name"
+                required
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+                placeholder="Alex"
+              />
+            </div>
+            <div>
+              <label
+                for="signupEmail"
+                class="text-sm font-medium text-slate-700"
+                >Email</label
+              >
+              <input
+                id="signupEmail"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label
+                for="signupPassword"
+                class="text-sm font-medium text-slate-700"
+                >Password</label
+              >
+              <input
+                id="signupPassword"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                required
+                minlength="8"
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+                placeholder="At least 8 characters"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              Create account
+            </button>
+
+            <p id="signupMsg" class="text-sm"></p>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const userAvatar = document.getElementById("userAvatar");
+      const userName = document.getElementById("userName");
+      const userEmail = document.getElementById("userEmail");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const dashboardLink = document.getElementById("dashboardLink");
+
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+      const loginMsg = document.getElementById("loginMsg");
+      const signupMsg = document.getElementById("signupMsg");
+
+      function initialsFromName(name) {
+        const safe = (name || "").trim();
+        if (!safe) return "G";
+        const parts = safe.split(/\\s+/).filter(Boolean);
+        const first = parts[0]?.[0] || "G";
+        const second = parts.length > 1 ? parts[parts.length - 1][0] : "";
+        return (first + second).toUpperCase();
+      }
+
+      function setMessage(el, text, kind) {
+        el.textContent = text || "";
+        el.className =
+          "text-sm " +
+          (kind === "ok"
+            ? "text-emerald-700"
+            : kind === "err"
+              ? "text-rose-700"
+              : "text-slate-600");
+      }
+
+      function setUserUI(user) {
+        if (!user) {
+          userAvatar.textContent = "G";
+          userName.textContent = "Guest";
+          userEmail.textContent = "Not signed in";
+          logoutBtn.classList.add("hidden");
+          dashboardLink.classList.add("hidden");
+          return;
+        }
+        userAvatar.textContent = initialsFromName(user.name);
+        userName.textContent = user.name || "User";
+        userEmail.textContent = user.email || "";
+        logoutBtn.classList.remove("hidden");
+        dashboardLink.classList.remove("hidden");
+      }
+
+      function setNextLink(next) {
+        const url = next || "/dashboard";
+        dashboardLink.setAttribute("href", url);
+        dashboardLink.textContent = url.startsWith("/2fa") ? "Continue" : "Dashboard";
+      }
+
+      async function postJSON(url, payload) {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      async function refreshMe() {
+        const res = await fetch("/api/me");
+        const data = await res.json().catch(() => ({}));
+        setUserUI(data?.user);
+      }
+
+      logoutBtn.addEventListener("click", async () => {
+        await postJSON("/api/logout", {});
+        setUserUI(null);
+        setMessage(loginMsg, "", "idle");
+        setMessage(signupMsg, "", "idle");
+      });
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setMessage(loginMsg, "Logging in...", "idle");
+
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const { ok, data } = await postJSON("/api/login", { email, password });
+
+        if (!ok || !data?.ok) {
+          setMessage(loginMsg, data?.message || "Login failed.", "err");
+          return;
+        }
+        setUserUI({ name: data.name, email: data.email });
+        setNextLink(data?.next);
+        setMessage(loginMsg, data.message || "Login successful.", "ok");
+        window.location.href = data?.next || "/dashboard";
+      });
+
+      signupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setMessage(signupMsg, "Creating account...", "idle");
+
+        const name = document.getElementById("signupName").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        const { ok, data } = await postJSON("/api/signup", { name, email, password });
+
+        if (!ok || !data?.ok) {
+          setMessage(signupMsg, data?.message || "Sign up failed.", "err");
+          return;
+        }
+        setUserUI({ name: data.name, email: data.email });
+        setNextLink(data?.next);
+        setMessage(signupMsg, data.message || "Account created.", "ok");
+        window.location.href = data?.next || "/dashboard";
+      });
+
+      refreshMe();
+    </script>
+  </body>
+</html>

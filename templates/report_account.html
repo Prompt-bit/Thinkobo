@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>Report account - Thinkobo</title>
+  </head>
+
+  <body class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"></div>
+      <div class="absolute -bottom-24 right-12 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+    </div>
+    {% from "components/autobot.html" import autobot_banner %} {{ autobot_banner(autobot) }}
+
+    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/75 backdrop-blur">
+      <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <a href="/reviews?site=thinkobo" class="flex items-center gap-2">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-8 w-8"
+          />
+          <span class="text-base font-semibold tracking-tight">Report account</span>
+        </a>
+        <div class="flex items-center gap-3">
+          <a
+            href="/reviews?site=thinkobo"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Reviews
+          </a>
+          <a
+            href="/home"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Home
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-4 py-10">
+      <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h1 class="text-xl font-semibold tracking-tight">Report an account</h1>
+        <p class="mt-1 text-sm text-slate-600">
+          Reports are reviewed by admins. Please be specific and truthful.
+        </p>
+
+        <form id="reportForm" class="mt-6 grid gap-4 md:grid-cols-2">
+          <div class="md:col-span-1">
+            <label for="reportedEmail" class="text-sm font-medium text-slate-700">Account email</label>
+            <input
+              id="reportedEmail"
+              name="reported_email"
+              type="email"
+              required
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+              placeholder="user@example.com"
+            />
+          </div>
+
+          <div class="md:col-span-1">
+            <label for="reporterEmail" class="text-sm font-medium text-slate-700">Your email (optional)</label>
+            <input
+              id="reporterEmail"
+              name="reporter_email"
+              type="email"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="reason" class="text-sm font-medium text-slate-700">Reason</label>
+            <textarea
+              id="reason"
+              name="reason"
+              required
+              rows="5"
+              maxlength="800"
+              class="mt-1 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-indigo-600/30 focus:ring-4"
+              placeholder="Tell us what happened…"
+            ></textarea>
+            <p class="mt-1 text-xs text-slate-500">Max 800 characters.</p>
+          </div>
+
+          <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-3">
+            <p id="reportMsg" class="text-sm"></p>
+            <button
+              type="submit"
+              id="submitReportBtn"
+              class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            >
+              Submit report
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const reportForm = document.getElementById("reportForm");
+      const reportMsg = document.getElementById("reportMsg");
+      const submitReportBtn = document.getElementById("submitReportBtn");
+
+      function setReportMsg(text, ok) {
+        reportMsg.textContent = text || "";
+        reportMsg.className = "text-sm " + (ok ? "text-emerald-700" : "text-rose-700");
+      }
+
+      async function postJSON(url, payload) {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      }
+
+      reportForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setReportMsg("", true);
+        submitReportBtn.disabled = true;
+        submitReportBtn.classList.add("opacity-70");
+
+        const payload = {
+          reported_email: document.getElementById("reportedEmail").value,
+          reporter_email: document.getElementById("reporterEmail").value,
+          reason: document.getElementById("reason").value,
+        };
+
+        const res = await postJSON("/api/report-account", payload);
+        if (!res.ok || !res.data?.ok) {
+          if (res.status === 403 && res.data?.code === "2fa_required" && res.data?.next) {
+            window.location.href = res.data.next;
+            return;
+          }
+          setReportMsg(res.data?.message || "Could not submit report.", false);
+          if (window.showAutobot) window.showAutobot("Autobot: " + (res.data?.message || "Could not submit report."), "error");
+          submitReportBtn.disabled = false;
+          submitReportBtn.classList.remove("opacity-70");
+          return;
+        }
+
+        setReportMsg("Report submitted. Thanks for helping keep Thinkobo safe.", true);
+        if (window.showAutobot) window.showAutobot("Autobot: Report submitted. Admins will review it.", "ok");
+        reportForm.reset();
+        submitReportBtn.disabled = false;
+        submitReportBtn.classList.remove("opacity-70");
+      });
+    </script>
+  </body>
+</html>

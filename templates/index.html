@@ -1,0 +1,45 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verifying your browser...</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-slate-100 flex items-center justify-center h-screen">
+    <div class="bg-white w-[420px] p-10 rounded-xl shadow-lg text-center">
+      <h1
+        class="text-xl font-semibold mb-6 flex items-center justify-center gap-2"
+      >
+        🛡️ Verifying connection
+      </h1>
+
+      <div class="flex justify-center">
+        <div
+          class="w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"
+        ></div>
+      </div>
+
+      <p class="mt-6 text-gray-800 font-medium">
+        Checking your browser before accessing this website.
+      </p>
+
+      <p class="mt-2 text-sm text-gray-500">
+        This process is automatic. Your browser will redirect shortly.
+      </p>
+
+      <div class="mt-8 text-xs text-gray-400">
+        Security check powered by TinkoCapt
+      </div>
+    </div>
+
+    <script>
+      setTimeout(() => {
+        document.cookie = "verified=true; path=/";
+        window.location.href = "/home";
+      }, 2500);
+    </script>
+  </body>
+</html>

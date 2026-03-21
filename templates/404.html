@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='favicon.svg') }}"
+      type="image/svg"
+    />
+    <title>Thinkobo - Page Not Found</title>
+  </head>
+
+  <body
+    class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900"
+  >
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div
+        class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl"
+      ></div>
+      <div
+        class="absolute -bottom-24 right-16 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl"
+      ></div>
+    </div>
+
+    <main class="mx-auto grid min-h-[80vh] max-w-5xl place-items-center px-4 py-10">
+      <div class="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div class="flex items-center gap-3">
+          <img
+            src="{{ url_for('static', filename='favicon.svg') }}"
+            alt="Thinkobo logo"
+            class="h-10 w-10"
+          />
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Error 404
+            </div>
+            <h1 class="text-2xl font-semibold tracking-tight">Page not found</h1>
+          </div>
+        </div>
+
+        <p class="mt-4 text-sm text-slate-600">
+          The page you’re looking for doesn’t exist or was moved.
+        </p>
+
+        <div class="mt-6 flex flex-col gap-2 sm:flex-row">
+          <a
+            href="/home"
+            class="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-700"
+          >
+            Go to home
+          </a>
+          <a
+            href="/dashboard"
+            class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Dashboard
+          </a>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Tip
+          </div>
+          <p class="mt-1 text-sm text-slate-700">
+            Check the URL, or go back to the dashboard to continue learning.
+          </p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+

@@ -1,0 +1,112 @@
+{% macro promo_video(src, poster="", title="Promo video") -%}
+  <section
+    data-video-promo
+    class="liquid-glass rounded-3xl p-4 shadow-sm transition"
+  >
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-slate-700">{{ title }}</h2>
+      <a
+        href="/auth"
+        class="text-sm font-semibold text-indigo-700 hover:text-indigo-800"
+        >Sign in</a
+      >
+    </div>
+
+    <div
+      data-video-shell
+      class="group mt-3 overflow-hidden rounded-2xl bg-slate-950 outline-none ring-indigo-600/25 focus:ring-4"
+      tabindex="0"
+      role="button"
+      aria-label="Video player"
+    >
+      <div class="relative">
+        <video
+          data-video
+          class="h-auto w-full cursor-pointer"
+          preload="metadata"
+          {% if poster %}poster="{{ poster }}"{% endif %}
+        >
+          <source src="{{ src }}" type="video/mp4" />
+        </video>
+
+        <button
+          data-big-btn
+          type="button"
+          class="absolute inset-0 grid place-items-center bg-black/20 opacity-100 transition group-hover:bg-black/10"
+          aria-label="Play"
+        >
+          <span
+            data-big-play
+            class="grid h-16 w-16 place-items-center rounded-full bg-white/90 shadow-lg"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" class="h-7 w-7 fill-slate-900">
+              <path d="M8 5v14l11-7z"></path>
+            </svg>
+          </span>
+          <span
+            data-big-pause
+            class="hidden grid h-16 w-16 place-items-center rounded-full bg-white/90 shadow-lg"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" class="h-7 w-7 fill-slate-900">
+              <path d="M6 5h4v14H6zM14 5h4v14h-4z"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 px-3 py-3">
+        <button
+          data-mini-btn
+          type="button"
+          class="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-white outline-none ring-white/25 hover:bg-white/15 focus:ring-4"
+          aria-label="Play"
+        >
+          <span data-mini-play aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-white">
+              <path d="M8 5v14l11-7z"></path>
+            </svg>
+          </span>
+          <span data-mini-pause class="hidden" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-white">
+              <path d="M6 5h4v14H6zM14 5h4v14h-4z"></path>
+            </svg>
+          </span>
+        </button>
+
+        <input
+          data-progress
+          class="promo-range w-full cursor-pointer"
+          type="range"
+          min="0"
+          max="100"
+          step="0.1"
+          value="0"
+          aria-label="Video progress"
+        />
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-white/80">Vol</span>
+          <input
+            data-volume
+            class="promo-range w-24 cursor-pointer"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="100"
+            aria-label="Volume"
+          />
+        </div>
+
+        <div
+          data-time
+          class="shrink-0 text-xs font-medium tabular-nums text-white/90"
+        >
+          0:00 / 0:00
+        </div>
+      </div>
+    </div>
+  </section>
+{%- endmacro %}
