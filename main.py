@@ -85,6 +85,10 @@ def home():
 def auth():
     return render_template("auth.html")
 
+@app.route("/quiz")
+def auth():
+    return render_template("quiz.html")
+
 @app.route("/dashboard")
 def dashboard():
     user = current_user()
