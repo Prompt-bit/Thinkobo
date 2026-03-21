@@ -86,7 +86,7 @@ def auth():
     return render_template("auth.html")
 
 @app.route("/quiz")
-def auth():
+def quiz():
     return render_template("quiz.html")
 
 @app.route("/dashboard")
